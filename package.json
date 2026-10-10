@@ -1,0 +1,30 @@
+{
+  "name": "kings-rescue",
+  "version": "1.0.0",
+  "description": "King's Rescue underwater counting game",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "node --test",
+    "check:api": "node scripts/check-api.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "UNLICENSED",
+  "type": "module",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "dotenv": "^18.0.6",
+    "express": "^5.2.1",
+    "mongodb": "^7.7.0"
+  },
+  "private": true,
+  "engines": {
+    "node": ">=22"
+  }
+}
