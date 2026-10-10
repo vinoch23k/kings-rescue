@@ -1,0 +1,8 @@
+// AI-assisted tests. See AI_DISCLOSURE.md.
+import test from 'node:test';import assert from 'node:assert/strict';
+import {FishApiClient,localPuzzle,validatePuzzle} from '../src/fish-api-client.js';
+test('contract validates counts and URL field',()=>{assert.throws(()=>validatePuzzle({question:'x',fish:'3',chest:1}));assert.throws(()=>validatePuzzle({question:'x',fish:1,chest:-1}));assert.equal(validatePuzzle({question:'https://www.sanfoh.com/x.png',fish:1,chest:2}).fish,1);});
+test('outage retries once and creates fallback',async()=>{let calls=0;const p=await new FishApiClient({fetcher:async()=>{calls++;throw new Error('Offline');}}).next();assert.equal(calls,2);assert.equal(p.source,'offline');});
+test('local SVG has exactly the expected fish and chest shapes',()=>{for(let i=0;i<20;i++){const p=localPuzzle(),svg=p.image.toString();assert.equal((svg.match(/<ellipse rx="26"/g)||[]).length,p.fish);assert.equal((svg.match(/width="50" height="32"/g)||[]).length,p.chest);}});
+test('untrusted image host is rejected before fetching image',async()=>{let calls=0;const p=await new FishApiClient({fetcher:async()=>{calls++;return new Response(JSON.stringify({question:'https://127.0.0.1/secret',fish:1,chest:1}));}}).next();assert.equal(calls,2);assert.equal(p.source,'offline');});
+test('valid external image becomes an internal puzzle',async()=>{const p=await new FishApiClient({fetcher:async(url)=>String(url).includes('api.php')?new Response(JSON.stringify({question:'https://www.sanfoh.com/x.png',fish:4,chest:1})):new Response(new Uint8Array([1,2,3]),{headers:{'content-type':'image/png'}})}).next();assert.equal(p.source,'api');assert.equal(p.fish,4);});
